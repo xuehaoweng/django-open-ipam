@@ -12,7 +12,6 @@
       "login_status": 0
     },
     {
-      "id": 2,
       "password": "pbkdf2_sha256$260000$8C21CNxdPz4SgEegt0tjYI$HF1HBwbgsgDHYOBqt/9X4pbP+Vl0dBIKJtQSJX6HYgw=",
       "is_superuser": "True",
       "first_name": "",
