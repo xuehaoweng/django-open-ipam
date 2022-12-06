@@ -1,0 +1,46 @@
+version: "3.2"
+networks:
+  netaxe-ipam-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.169.205.0/24
+
+services:
+  netaxeipam_server:
+    image: netaxe_ipam:01
+    container_name: netaxeipam_server
+    ports:
+      - "38001:38001"
+    command: sh start.sh web
+    volumes:
+      - ../netaxe_ipam:/home/netaxeipam/
+      - ./netaxeipam/logs/netaxeipam_log:/home/netaxeipam/logs
+    networks:
+      - netaxe-ipam-network
+
+  netaxeipam_nginx:
+    image: registry.cn-hangzhou.aliyuncs.com/netaxe/nginx:1.7.9
+    container_name: netaxeipam_nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ../netaxe_ipam:/home/netaxeipam/
+    ports:
+      - "39999:39999"
+    depends_on:
+      - netaxeipam_server
+    networks:
+      - netaxe-ipam-network
+
+  celery_netaxe_ipam:
+    image: netaxe_ipam:01
+    container_name: celery_netaxe_ipam
+    command: sh start.sh netaxe_ipam
+    depends_on:
+      - netaxeipam_server
+    volumes:
+      - ../netaxe_ipam:/home/netaxeipam
+    networks:
+      - netaxe-ipam-network
+
+

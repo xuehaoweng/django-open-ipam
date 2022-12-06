@@ -1,0 +1,11 @@
+netaxe_ipam_web/node_modules/
+.DS_Store
+netaxe_ipam_web/dist-ssr
+netaxe_ipam_web/*.local
+.idea/
+netaxe_ipam_web/idea/
+netaxe_ipam_web/vscode/
+netaxe_ipam_web/dist.zip
+netaxe_ipam_web/dist/
+netaxe_ipam_web/components.d.ts
+
