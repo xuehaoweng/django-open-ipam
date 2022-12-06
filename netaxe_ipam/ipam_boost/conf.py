@@ -12,13 +12,13 @@
 """
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-SERVERIP = "10.254.0.111"
-SERVICEPORT = "18001"
+SERVER_IP = "10.254.0.111"
+SERVICE_PORT = "38001"
 DATABASES = {
     'default': {
-        'NAME': 'netaxe-ipam',
+        'NAME': 'netaxe_ipam',
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': '10.254.0.111',
+        'HOST': 'SERVER_IP',
         'USER': 'root',
         'PASSWORD': 'root_devnet@2022',
         'PORT': '3306',
@@ -36,18 +36,18 @@ DATABASES = {
 }
 
 # REDIS_URL = "redis://:dade0f2a65237a56b79277e6dd27351d2854df033e0ad4b4f90abec229cd64df@redis-cache:6379/"
-REDIS_URL = "redis://:dade0f2a65237a56b79277e6dd27351d2854df033e0ad4b4f90abec229cd64df@10.254.0.111:6379/"
+REDIS_URL = "redis://:dade0f2a65237a56b79277e6dd27351d2854df033e0ad4b4f90abec229cd64df@SERVER_IP:6379/"
 CACHE_PWD = 'dade0f2a65237a56b79277e6dd27351d2854df033e0ad4b4f90abec229cd64df'
 mongo_db_conf = {
-    "host": '10.254.0.111',
+    "host": 'SERVER_IP',
     "port": 27017,
     "username": "root",
     "password": "70uUceCVL1gf"
 }
 netops_api = {
-    "token_url": 'http://10.254.0.111:9999/api/token/',
-    "base_url": 'http://10.254.0.111:9999/api/',
-    "resources_manage_base_url": 'http://10.254.0.111:9999/resources_manage/api/',
+    "token_url": 'http://SERVER_IP:9999/api/token/',
+    "base_url": 'http://SERVER_IP:9999/api/',
+    "resources_manage_base_url": 'http://SERVER_IP:9999/resources_manage/api/',
     'username': 'adminnetaxe',
     'password': 'netaxeadmin',
 }

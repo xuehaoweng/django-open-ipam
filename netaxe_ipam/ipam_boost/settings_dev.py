@@ -34,9 +34,6 @@ else:
 # Application definition
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ipam_boost.settings")
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
-nacos_server_ip = '10.254.0.111'
-local_service_ip = '10.254.0.110'
-local_service_port = '18000'
 INSTALLED_APPS = [
     # 'simpleui',
     # 'guardian',
@@ -157,8 +154,6 @@ CELERY_ONCE_URL = "{}1".format(REDIS_URL)
 CELERY_RESULT_BACKEND = "django-db"  # 使用django数据库
 CELERY_BROKER_URL = "{}8".format(REDIS_URL)
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-# CELERY_RESULT_BACKEND = "redis://10.254.0.110:6379/9" #结果存储，我配置的是存储到数据库
-# CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_ACCEPT_CONTENT = ["json", "application/text"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
