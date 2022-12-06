@@ -19,7 +19,7 @@ def main():
     with open(os.path.join(BASE_DIR, 'utils', 'init_users.json'), 'r', encoding="utf-8") as load_f:
         code_list = json.load(load_f)
         for table, values in code_list.items():
-            my_model = apps.get_model("open_ipam", table)
+            my_model = apps.get_model("users", table)
             if my_model:
                 for value in values:
                     print(table, value)
