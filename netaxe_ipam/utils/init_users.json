@@ -9,14 +9,11 @@
       "is_active": "True",
       "username": "AnonymousUser",
       "image": "images/default.png",
-      "login_status": 0,
-      "gender": 0,
-      "user_type": 0
+      "login_status": 0
     },
     {
       "id": 2,
       "password": "pbkdf2_sha256$260000$8C21CNxdPz4SgEegt0tjYI$HF1HBwbgsgDHYOBqt/9X4pbP+Vl0dBIKJtQSJX6HYgw=",
-
       "is_superuser": "True",
       "first_name": "",
       "last_name": "",
@@ -25,9 +22,7 @@
       "username": "adminnetaxe",
       "email": "admin@1.com",
       "image": "images/default.png",
-      "login_status": 0,
-      "gender": 0,
-      "user_type": 0
+      "login_status": 0
     }
   ]
 }
