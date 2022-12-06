@@ -142,7 +142,7 @@ class HostsListPagination(pagination.BasePagination):
                     ('code', 200),
                     # ('ip_used', [i for i in data]),
                     ('data', {'ip_used': data,
-                              'sub_net': Subnet.objects.filter(subnet=data[0]['subnet']).values("name", "description"),
+                              'sub_net': Subnet.objects.filter(subnet=data[0]['subnet']).values("name", "description","id"),
                               'subnet_used': {
                                   'freehosts': round(100 - dist_and_used - not_dist_used, 2),
                                   'freehosts_percent': round(100 - dist_and_used - not_dist_used, 2),
