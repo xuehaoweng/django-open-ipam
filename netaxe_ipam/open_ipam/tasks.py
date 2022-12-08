@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, unicode_literals
 import json
 import logging
 import os
@@ -28,7 +29,7 @@ def write_log(filename, datas):
 
 
 @shared_task(base=IpAmTask, once={'graceful': True})
-def get_tasks():
+def get_all_tasks():
     celery_app = current_app
     # celery_tasks = [task for task in celery_app.tasks if not task.startswith('celery.')]
     res = list(sorted(name for name in celery_app.tasks

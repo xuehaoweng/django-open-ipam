@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-xyok!l9tqv+*t8ar)lcut_(lbvnyu#y-3(@%+)4$hl=j$6#yb-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -220,4 +220,4 @@ REST_FRAMEWORK = {
     # "DEFAULT_PAGINATION_CLASS": "apps.api.tools.custom_pagination.LargeResultsSetPagination",
 }
 # Restful token 有效时间60分钟
-REST_FRAMEWORK_TOKEN_EXPIRE_MINUTES = 60 * 8
+REST_FRAMEWORK_TOKEN_EXPIRE_MINUTES = 60 * 60

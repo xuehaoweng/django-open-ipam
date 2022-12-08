@@ -21,7 +21,7 @@ from rest_framework.utils.urls import replace_query_param, remove_query_param
 from rest_framework.views import APIView
 
 from ipam_boost.celery import app
-from .tasks import get_tasks
+from .tasks import get_all_tasks
 from open_ipam.models import Subnet, IpAddress, TagsModel
 from open_ipam.serializers import HostsResponseSerializer, SubnetSerializer, IpAddressSerializer, \
     PeriodicTaskSerializer, IntervalScheduleSerializer, TagsModelSerializer
@@ -142,7 +142,8 @@ class HostsListPagination(pagination.BasePagination):
                     ('code', 200),
                     # ('ip_used', [i for i in data]),
                     ('data', {'ip_used': data,
-                              'sub_net': Subnet.objects.filter(subnet=data[0]['subnet']).values("name", "description","id"),
+                              'sub_net': Subnet.objects.filter(subnet=data[0]['subnet']).values("name", "description",
+                                                                                                "id"),
                               'subnet_used': {
                                   'freehosts': round(100 - dist_and_used - not_dist_used, 2),
                                   'freehosts_percent': round(100 - dist_and_used - not_dist_used, 2),
@@ -361,6 +362,7 @@ class IpAmHandelView(APIView):
             res = {'message': '地址回收成功', 'code': 200, 'delete_ip_list': [j['ipaddr'] for j in delete_ip_list]}
             return JsonResponse(res, safe=True)
 
+
 # 作业中心taskList
 class JobCenterView(APIView):
     def get(self, request):
@@ -370,8 +372,8 @@ class JobCenterView(APIView):
         get_queues = request.GET.get('get_queues')
         celery_app = current_app
         if get_current_tasks:
-            res = get_tasks.apply_async()
-            print(res.get())
+            res = get_all_tasks.apply_async()
+            # print(res.get())
             while True:
                 if res.ready():
                     result = res.get()

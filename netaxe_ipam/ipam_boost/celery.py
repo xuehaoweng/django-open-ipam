@@ -14,18 +14,18 @@ app = Celery('ipam_boost')
 app.now = timezone.now
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-default_exchange = Exchange('default', type='direct')
+# default_exchange = Exchange('default', type='direct')
 netaxe_ipam_exchange = Exchange('netaxe_ipam', type='direct')
 
 app.conf.task_time_limit = 86400
 app.conf.worker_prefetch_multiplier = 10
 app.conf.worker_max_tasks_per_child = 100
-app.conf.task_default_queue = 'default'
-app.conf.task_default_exchange = 'default'
-app.conf.task_default_routing_key = 'default'
+app.conf.task_default_queue = 'netaxe_ipam'
+app.conf.task_default_exchange = 'netaxe_ipam'
+app.conf.task_default_routing_key = 'netaxe_ipam'
 app.conf.task_default_exchange_type = 'direct'
 app.conf.task_queues = (
-    Queue('default', default_exchange, routing_key='default'),
+    # Queue('default', default_exchange, routing_key='default'),
     Queue('netaxe_ipam', netaxe_ipam_exchange, routing_key='netaxe_ipam'),
 )
 
