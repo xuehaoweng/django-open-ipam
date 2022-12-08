@@ -35,6 +35,7 @@ else:
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ipam_boost.settings")
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 INSTALLED_APPS = [
+    # 'simplepro',
     'simpleui',
     # 'guardian',
     'django_filters',
@@ -65,6 +66,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # 加入simplepro的中间件
+    # 'simplepro.middlewares.SimpleMiddleware'
 ]
 
 ROOT_URLCONF = 'ipam_boost.urls'
@@ -182,14 +186,12 @@ SIMPLEUI_HOME_ACTION = True
 # 隐藏右侧SimpleUI广告链接和使用分析
 SIMPLEUI_HOME_INFO = False
 SIMPLEUI_ANALYSIS = False
-
-
+SIMPLEUI_INDEX = '/ipam/admin'
 
 # 设置默认主题，指向主题css文件名。Admin Lte风格
 SIMPLEUI_DEFAULT_THEME = 'admin.lte.css'
 
 SIMPLEUI_HOME_ICON = 'fa fa-eye'
-
 
 REST_FRAMEWORK = {
     "DATE_FORMAT": "%Y-%m-%d",
@@ -219,5 +221,5 @@ REST_FRAMEWORK = {
     # "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.AutoSchema",
     # "DEFAULT_PAGINATION_CLASS": "apps.api.tools.custom_pagination.LargeResultsSetPagination",
 }
-# Restful token 有效时间60分钟
-REST_FRAMEWORK_TOKEN_EXPIRE_MINUTES = 60 * 60
+# Restful token 有效时间八小时
+REST_FRAMEWORK_TOKEN_EXPIRE_MINUTES = 60 * 60 * 8
