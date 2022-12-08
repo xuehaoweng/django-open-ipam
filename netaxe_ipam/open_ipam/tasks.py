@@ -170,24 +170,24 @@ def ip_am_update_main():
         IpamOps.delet_coll(coll='netaxe_ipam_success_ip')
         IpamOps.delet_coll(coll='netaxe_ipam_update_ip')
     else:
-        print("Netops_IPAM地址信息更新失败：未获取到total_ip_list")
+        print("IPAM地址信息更新失败：未获取到total_ip_list")
         return
     for ip_info in total_ip:
         if ip_info['ipaddress']:
             # print(ip_info['ipaddress'])
             # 异步函数方式-验证中
-            # ip_am_update_tasks.append(
-            #     ip_am_update_sub_task.apply_async(args=(ip_info['ipaddress'],), queue='netaxe_ipam'))
+            ip_am_update_tasks.append(
+                ip_am_update_sub_task.apply_async(args=(ip_info['ipaddress'],), queue='netaxe_ipam'))
 
-            ip_am_update_sub_task(ip_info['ipaddress'])
-    # print("子任务下发完毕")
-    #
-    # # 等待子任务全部执行结束后执行下一步
-    # while len(ip_am_update_tasks) != 0:
-    #     for tasks in ip_am_update_tasks:
-    #         if tasks.ready():
-    #             ip_am_update_tasks.remove(tasks)
-    # print('子任务执行完毕')
+            # ip_am_update_sub_task(ip_info['ipaddress'])
+    print("子任务下发完毕")
+
+    # 等待子任务全部执行结束后执行下一步
+    while len(ip_am_update_tasks) != 0:
+        for tasks in ip_am_update_tasks:
+            if tasks.ready():
+                ip_am_update_tasks.remove(tasks)
+    print('子任务执行完毕')
     total_time = int((time.time() - start_time) / 60)
     print('花费总时间', total_time)
 

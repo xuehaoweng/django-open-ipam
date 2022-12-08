@@ -9,3 +9,5 @@ netaxe_ipam_web/dist.zip
 netaxe_ipam_web/dist/
 netaxe_ipam_web/components.d.ts
 __pycache__/
+
+netaxe_ipam/ipam_boost/conf.py
