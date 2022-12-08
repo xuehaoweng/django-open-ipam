@@ -37,6 +37,7 @@ export default ({ mode }) => {
       // hmr:{
       //   overlay:false
       // },
+      port: 3003,
       open: true,
       proxy: {
         '/ipam': {

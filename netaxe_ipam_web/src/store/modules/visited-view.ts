@@ -2,19 +2,17 @@ import { RouteRecordRawWithHidden } from './../../types/store'
 import { StoreType } from '../../types/store'
 import VisitedView from '../../types/visited-view'
 
-const LOCAL_STOREAGE_VISITED_KEY = 'netops-visited'
+const LOCAL_STOREAGE_VISITED_KEY = 'admin-work-visited'
 
 export default {
   addVisitedView(route) {
     return new Promise((resolve) => {
-      let isNewRoute = false
       if (!(this as StoreType).state.visitedView.find((it) => it.fullPath === route.fullPath)) {
-        isNewRoute = true
         ;(this as StoreType).state.visitedView.push(route)
         this.persistentVisitedView()
       }
       ;(this as StoreType).addCachedView && (this as StoreType).addCachedView(route)
-      resolve({ route, isNewRoute })
+      resolve(route)
     })
   },
   removeVisitedView(route) {

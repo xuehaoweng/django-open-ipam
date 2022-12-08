@@ -4,7 +4,7 @@ export const baseAddress = ''
 
 export const test = '/test'
 
-export const login = '/ipam/api-token/'
+export const login = '/ipam/login/'
 
 export const updateUserInfo = '/updateUser'
 

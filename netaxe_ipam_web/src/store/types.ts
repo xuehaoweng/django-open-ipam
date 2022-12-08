@@ -1,13 +1,8 @@
 export interface UserState {
-  userId: number
   token: string
-  roleId: number
-  roles: string[] | null
+  image: string
   userName: string
   nickName: string
-  avatar: string
-}
-export interface stateInt {
-  data: Object
-  webSocket: WebSocket
+  isSuperuser: boolean
+  roles: string[] | null
 }

@@ -170,8 +170,8 @@ export default defineComponent({
       encryptStr.setKey(PUBLIC_KEY);
       loading.value = true
       formdata.append('username',username.value)
-      formdata.append('password',password.value)
-      // formdata.append('password',encryptStr.encrypt(password.value))
+      // formdata.append('password',password.value)
+      formdata.append('password',encryptStr.encrypt(password.value))
       post({
         url: login,
         data: formdata,

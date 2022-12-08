@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>404页面找不着了x</title>
+</head>
+<body>
+<h1>Error:404,页面找不到了</h1>
+<h2>{{ request_path }}</h2>
+<h2>kahn 2019年4月15日14:34:56</h2>
+<hr>
+<p>设置Django404页面，首先得创建404页面，并且在页面中写上request_path</p>
+<p>这个request__path用两个花括号包住，中间用单下划线连接</p>
+<p>然后在项目的settings中，将DEBUG = False, 如果是True的话，Django永远不会去调用404页面</p>
+<p>404页面名字不允许改变，必须叫404.html。而且要放到/templates根目录下，绝不能放到/templates/app下</p>
+<p>（无需写路由，无需写视图，因为你打开的页面本身是不存在的，还写啥视图写啥路由啊）</p>
+<p>自定义404页面就这么简单，kahn,ok,2019年4月15日16:23:53</p>
+<hr>
+<a>500,400页面也类似</a>
+</body>
+</html>

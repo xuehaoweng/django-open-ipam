@@ -1,5 +1,6 @@
 import datetime
 
+from django.shortcuts import render
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -37,3 +38,10 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
 
 
 obtain_expiring_auth_token = ObtainExpiringAuthToken.as_view()
+
+
+# from django.shortcuts import render
+
+# 少了参数exception，服务器报错：The custom handler404 view 'myapp.views.Index.page_not_found' does not take the correct number of arguments (request, exception)
+def page_not_found(request, exception):
+    return render(request, '404.html', status=404)

@@ -10,12 +10,8 @@ from ipam_boost.celery import IpAmTask
 from open_ipam.models import IpAddress, Subnet, BgBu
 from utils.ipam_utils import IpAmForNetwork
 from utils.mongo_api import IpamOps
-# from utils.send_email import send_mail
 from ipam_boost.settings_dev import BASE_DIR
 from netaddr import IPNetwork, IPSet
-
-
-# logger = logging.getLogger('netops_ipam')
 
 
 def write_log(filename, datas):
@@ -62,7 +58,7 @@ def ip_am_update_sub_task(ip):
 
     # TODO 判断IP地址是否在NetAxe-IPAM中有记录
 
-    # IP地址暂时不存在Netops-IPAM中 则不存在子网网段IP
+    # IP地址暂时不存在IPAM中 则不存在子网网段IP
     if ip_address_instance is None:
         # 地址不存在,则去判断16位网段存不存在,看是否需要先新增网段
         subnet16_id = IpAmForNetwork.get_sixteen_subnet_id(ip=ip)
@@ -160,7 +156,7 @@ def ip_am_update_sub_task(ip):
 @shared_task(base=IpAmTask, once={'graceful': True})
 def ip_am_update_main():
     start_time = time.time()
-    print("Netops-IPAM地址信息更新开始")
+    print("IPAM地址信息更新开始")
     file_time = datetime.now().strftime("%Y-%m-%d")
     # 获取tasks任务数量
     ip_am_update_tasks = []
@@ -177,7 +173,8 @@ def ip_am_update_main():
         return
     for ip_info in total_ip:
         if ip_info['ipaddress']:
-            print(ip_info['ipaddress'])
+            # print(ip_info['ipaddress'])
+            # 异步函数方式-验证中
             # ip_am_update_tasks.append(
             #     ip_am_update_sub_task.apply_async(args=(ip_info['ipaddress'],), queue='netaxe_ipam'))
 
@@ -198,11 +195,10 @@ def ip_am_update_main():
     ip_update_counts = IpamOps.get_coll_account(coll='netaxe_ipam_update_ip')  # 更新地址表
 
     # # 发送邮件和微信信息
-    send_message = 'NetAxe-IPAM地址信息更新完成!\n新录入成功: {}个\n新录入失败: {}个\n更新成功: {}个\n总耗时: {}分钟\n'.format(
+    send_message = 'PAM地址信息更新完成!\n新录入成功: {}个\n新录入失败: {}个\n更新成功: {}个\n总耗时: {}分钟\n'.format(
         ip_add_counts, ip_fail_counts, ip_update_counts, total_time)
 
     try:
-        # _wechat = weiChatApi()
         print(send_message)
     except Exception as e:
         pass

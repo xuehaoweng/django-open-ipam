@@ -1,5 +1,4 @@
 import { MessageApi } from 'naive-ui'
-// @ts-ignore
 import { Ref, VNode } from 'vue'
 
 export interface HeaderCellStyle {

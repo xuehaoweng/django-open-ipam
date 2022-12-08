@@ -1,9 +1,7 @@
 import { RouteRecordRawWithHidden } from './store'
 
 export default interface VisitedView {
-  addVisitedView: (
-    route: RouteRecordRawWithHidden
-  ) => Promise<{ route: RouteRecordRawWithHidden; isNewRoute: boolean }>
+  addVisitedView: (route: RouteRecordRawWithHidden) => Promise<RouteRecordRawWithHidden>
   removeVisitedView: (route: RouteRecordRawWithHidden) => Promise<RouteRecordRawWithHidden>
   closeLeftVisitedView: (route: RouteRecordRawWithHidden) => Promise<RouteRecordRawWithHidden>
   closeRightVisitedView: (route: RouteRecordRawWithHidden) => Promise<RouteRecordRawWithHidden>

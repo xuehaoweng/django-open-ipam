@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-xyok!l9tqv+*t8ar)lcut_(lbvnyu#y-3(@%+)4$hl=j$6#yb-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -35,7 +35,7 @@ else:
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ipam_boost.settings")
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 INSTALLED_APPS = [
-    # 'simpleui',
+    'simpleui',
     # 'guardian',
     'django_filters',
     "django_celery_beat",
@@ -174,3 +174,50 @@ CELERY_WORKER_CONCURRENCY = 40  # celery worker的并发数
 # 官方用来修复CELERY_ENABLE_UTC=False and USE_TZ = False 时时间比较错误的问题；
 # 详情见：https://github.com/celery/django-celery-beat/pull/216/files
 DJANGO_CELERY_BEAT_TZ_AWARE = False
+
+# 隐藏首页的快捷操作和最近动作
+SIMPLEUI_HOME_QUICK = False
+SIMPLEUI_HOME_ACTION = True
+
+# 隐藏右侧SimpleUI广告链接和使用分析
+SIMPLEUI_HOME_INFO = False
+SIMPLEUI_ANALYSIS = False
+
+
+
+# 设置默认主题，指向主题css文件名。Admin Lte风格
+SIMPLEUI_DEFAULT_THEME = 'admin.lte.css'
+
+SIMPLEUI_HOME_ICON = 'fa fa-eye'
+
+
+REST_FRAMEWORK = {
+    "DATE_FORMAT": "%Y-%m-%d",
+    "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",  # 日期时间格式配置
+    "DEFAULT_FILTER_BACKENDS": (
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+        # "rest_framework.permissions.DjangoModelPermissions",
+        # "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
+    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        # "rest_framework.authentication.BasicAuthentication",
+        # "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # "apps.api.authentication.ExpiringTokenAuthentication",
+    ),
+    "EXCEPTION_HANDLER": "utils.custom_exception.custom_exception_handler",  # 自定义的异常处理
+    # "EXCEPTION_HANDLER": "apps.api.tools.custom_exception.custom_exception_handler", # 自定义的异常处理
+    # 下面控制分页
+    # "DEFAULT_PAGINATION_CLASS": "utils.custom.pagination.CustomPagination",  # 自定义分页
+    # "PAGE_SIZE": 10,
+    # "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.AutoSchema",
+    # "DEFAULT_PAGINATION_CLASS": "apps.api.tools.custom_pagination.LargeResultsSetPagination",
+}
+# Restful token 有效时间60分钟
+REST_FRAMEWORK_TOKEN_EXPIRE_MINUTES = 60 * 8

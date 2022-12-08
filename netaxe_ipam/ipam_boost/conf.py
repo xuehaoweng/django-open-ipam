@@ -12,7 +12,7 @@
 """
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-SERVER_IP = "10.254.0.111"
+SERVER_IP = "10.254.2.219"
 SERVICE_PORT = "38001"
 DATABASES = {
     'default': {
