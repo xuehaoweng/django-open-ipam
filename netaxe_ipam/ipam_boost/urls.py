@@ -23,11 +23,14 @@ from ipam_boost import settings
 from open_ipam.tolls.login import LoginView
 
 urlpatterns = [
+    # coreapi接口文档
     path(r'ipam/docs/', include_docs_urls(title='NetOpsIpam接口文档')),
+    # admin后台
     path('ipam/admin/', admin.site.urls),
     path('ipam/login/', LoginView.as_view(), name="login"),
     path(r'ipam/api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path(r'ipam/api-token/', obtain_expiring_auth_token, name='api-token'),
+    # 提供api接口
     path(r'ipam/v1/', include('open_ipam.urls'), ),
     re_path(r'^media/(?P<path>.*)', serve, {"document_root": settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}, name='static'),

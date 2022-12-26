@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'import_export',
-
     # "rest_framework_tracking",
     'reversion',
     'open_ipam',
@@ -189,10 +188,69 @@ SIMPLEUI_ANALYSIS = False
 SIMPLEUI_INDEX = '/ipam/admin'
 
 # 设置默认主题，指向主题css文件名。Admin Lte风格
-SIMPLEUI_DEFAULT_THEME = 'admin.lte.css'
+SIMPLEUI_DEFAULT_THEME = 'element.css'
 
-SIMPLEUI_HOME_ICON = 'fa fa-eye'
+SIMPLEUI_HOME_ICON = 'fa fa-home'
 
+SIMPLEUI_CONFIG = {
+    'system_keep': True,
+    'menu_display': ['地址管理中心', '周期任务', '用户管理', '认证令牌', 'Celery Results', '认证和授权'],
+    # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
+    'dynamic': False,  # 设置是否开启动态菜单, 默认为False.  如果开启, 则会在每次用户登陆时动态展示菜单内容
+
+    'menus': [
+        {
+            'name': '地址管理中心',
+            'icon': 'fa el-icon-monitor',
+            'models': [
+                {
+                    'name': '子网网段表',
+                    'url': 'open_ipam/subnet/',
+                    'icon': 'far fa-bookmark'
+                },
+                {
+                    'name': '网络地址表',
+                    'url': 'open_ipam/ipaddress/',
+                    'icon': 'far fa-file-excel'
+                },
+                {
+                    'name': '地址标签表',
+                    'url': 'open_ipam/tagsmodel/',
+                    'icon': 'far fa-file-excel'
+                },
+                {
+                    'name': '业务线表',
+                    'url': 'open_ipam/bgbu/',
+                    'icon': 'far fa-file-excel'
+                },
+            ]
+        },
+
+        {
+            'name': '用户管理',
+            'icon': 'far fa-user',
+            'models': [{
+                'name': '用户列表',
+                'url': 'users/userprofile/',
+                'icon': 'far fa-user'
+            }]
+        },
+        # {
+        #     'name': '认证和授权',
+        #     'icon': 'fa fa-shield-alt',
+        #     'models': [{
+        #         'name': '用户',
+        #         'url': 'auth/user/',
+        #         'icon': 'fa fa-user'
+        #     }, {
+        #         'name': '角色',
+        #         'url': 'auth/group/',
+        #         'icon': 'fa fa-users-cog'
+        #     }]
+        # }
+    ]
+
+}
 REST_FRAMEWORK = {
     "DATE_FORMAT": "%Y-%m-%d",
     "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",  # 日期时间格式配置
@@ -203,16 +261,17 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
-        # "rest_framework.permissions.DjangoModelPermissions",
-        # "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
+        "rest_framework.permissions.DjangoModelPermissions",
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        # "rest_framework.authentication.BasicAuthentication",
-        # "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.TokenAuthentication",
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'utils.authentication.ExpiringTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
         # "apps.api.authentication.ExpiringTokenAuthentication",
     ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     "EXCEPTION_HANDLER": "utils.custom_exception.custom_exception_handler",  # 自定义的异常处理
     # "EXCEPTION_HANDLER": "apps.api.tools.custom_exception.custom_exception_handler", # 自定义的异常处理
     # 下面控制分页

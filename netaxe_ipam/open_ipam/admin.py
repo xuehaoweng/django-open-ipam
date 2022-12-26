@@ -347,6 +347,6 @@ class AdminTagsModel(admin.ModelAdmin):
     search_fields = ['bg_color', 'compress', 'fg_color', 'locked', 'type', 'show_tag']
 
 
-admin.site.site_header = 'NetAxeIPAM管理系统'
-admin.site.site_title = 'NetAxeIPAM管理系统'
-admin.site.index_title = 'NetAxeIPAM管理系统'
+admin.site.site_header = 'IP地址管理系统'
+admin.site.site_title = 'IP地址管理系统'
+admin.site.index_title = 'IP地址管理系统'
