@@ -25,12 +25,14 @@ SECRET_KEY = 'django-insecure-xyok!l9tqv+*t8ar)lcut_(lbvnyu#y-3(@%+)4$hl=j$6#yb-
 DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["*"]
+
 # 用户自定义配置
 if os.path.exists("{}/{}/{}".format(BASE_DIR, "ipam_boost", "conf.py")):
     from .conf import *
 else:
     raise RuntimeError("没有找到conf.py的配置信息")
+
+CSRF_TRUSTED_ORIGINS = ["http://{}:8888".format(SERVER_IP)]
 # Application definition
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ipam_boost.settings")
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
