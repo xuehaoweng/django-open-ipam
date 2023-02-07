@@ -11,7 +11,9 @@ class PlatformOperationLogs(MiddlewareMixin):
     __exclude_urls = ['index/', 'ipam/admin/jsi18n/', '/ipam/admin/users/oplogs/',
                       '/media/admin-interface/favicon/favicon.ico',
                       '/media/admin-interface/logo/image.jpg',
-                      '/media/admin-interface/logo/favicon.jpg']  # 定义不需要记录日志的url名单
+                      '/media/admin-interface/logo/favicon.jpg',
+                      '/static/rest_framework/css/bootstrap.min.css'
+                      ]  # 定义不需要记录日志的url名单
 
     def __init__(self, *args):
         super(PlatformOperationLogs, self).__init__(*args)
@@ -76,7 +78,10 @@ class PlatformOperationLogs(MiddlewareMixin):
                 return response
 
         # 获取响应数据字符串(多用于API, 返回JSON字符串)
-        rp_content = response.content.decode()
+        try:
+            rp_content = response.content.decode()
+        except Exception as e:
+            rp_content = ''
         # rp_content = response.content
         rp_code = response.status_code
         # print(response.status_code)
