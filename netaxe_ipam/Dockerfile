@@ -17,9 +17,9 @@ RUN set -ex \
     && yum clean all
 # 系统环境依赖配置
 # 目录设置
-WORKDIR /netaxeipam
+WORKDIR /home/netaxeipam
 # 从gitlab仓库拉取
-COPY Python-3.9.11.tgz  /netaxeipam
+COPY Python-3.9.11.tgz  /home/netaxeipam
 RUN set -ex \
     # 预安装所需组件
     && yum install -y epel-release tar libmysqlclient-dev supervisor libffi-devel zlib-devel bzip2-devel openssl-devel ncurses-devel \
@@ -30,7 +30,7 @@ RUN set -ex \
     && make \
     && make install \
     && make clean \
-    && rm -rf /netaxeipam/Python-3.9.11* \
+    && rm -rf /home/netaxeipam/Python-3.9.11* \
     && yum install -y python-pip \
     && yum install -y python-devel \
     && yum install -y openldap-devel \
