@@ -255,9 +255,10 @@ SIMPLEUI_CONFIG = {
 
 }
 REST_FRAMEWORK = {
+    # 取消默认权限类
     'DEFAULT_PERMISSION_CLASSES': (
         # 'rest_framework.permissions.DjangoModelPermissions',
-        'rest_framework.permissions.IsAuthenticated',
+        # 'rest_framework.permissions.IsAuthenticated',
         # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ),
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
