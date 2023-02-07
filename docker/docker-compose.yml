@@ -8,7 +8,7 @@ networks:
 
 services:
   netaxeipam_server:
-    image: registry.cn-hangzhou.aliyuncs.com/netaxe/axe-ipam:1.0.0
+    image: registry.cn-shanghai.aliyuncs.com/net-axe/axe-ipam:1.0.2
     container_name: netaxeipam_server
     ports:
       - "38001:38001"
@@ -33,7 +33,7 @@ services:
       - netaxe-ipam-network
 
   celery_netaxe_ipam:
-    image: registry.cn-hangzhou.aliyuncs.com/netaxe/axe-ipam:1.0.0
+    image: registry.cn-shanghai.aliyuncs.com/net-axe/axe-ipam:1.0.2
     container_name: celery_netaxe_ipam
     command: sh start.sh netaxe_ipam
     depends_on:

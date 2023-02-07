@@ -30,7 +30,6 @@ RUN set -ex \
     && make \
     && make install \
     && make clean \
-    && rm -rf /home/netaxeipam/Python-3.9.11* \
     && yum install -y python-pip \
     && yum install -y python-devel \
     && yum install -y openldap-devel \
