@@ -1,4 +1,5 @@
 /*jslint browser:true */
+
 /*globals onUpdate*/
 
 function normalizeIP(ip_address) {
@@ -46,20 +47,74 @@ function initHostsInfiniteScroll($, current_subnet, address_add_url, address_cha
         searchQuery = '',
         lastRenderedPage = 0; //1 based indexing (0 -> no page rendered)
     function addressListItem(addr) {
+        // console.log(addr)
         var id = normalizeIP(addr.address);
-        if (addr.used) {
+        // var ip_uuid_value = ip_uuid[addr.address];
+        // console.log("uuid", ip_uuid_value)
+        if (addr.tag === 1) {
+            var uuid = ip_uuid[addr.address];
+            // console.log("uuid", uuid)
+            //note 1234 was passed as a dummy to be later on replaced in the script
+            // return '<a class = "free" href=\"' + address_change_url.replace('1234', uuid) +
+            //     '?_to_field=id&amp;_popup=1&amp;ip_address=' + addr.address +
+            //     '&amp;subnet=' + current_subnet + '"onclick="return showAddAnotherPopup(this);">' +
+            //     addr.address + '</a>';
+             return '<a class = "free"  href=\"' + address_add_url + '?_to_field=id&amp;_popup=1&amp;ip_address=' +
+            addr.address + '&amp;subnet=' + current_subnet + '"onclick="return showAddAnotherPopup(this);" ' +
+            'id="addr_' + id + '">' +
+            addr.address + '</a>';
+        }
+        if (addr.tag === 2) {
             var uuid = ip_uuid[addr.address];
             //note 1234 was passed as a dummy to be later on replaced in the script
-            return '<a class = "used" href=\"' + address_change_url.replace('1234', uuid) +
+            return '<a class = "has_allocated_and_used" href=\"' + address_change_url.replace('1234', uuid) +
                 '?_to_field=id&amp;_popup=1&amp;ip_address=' + addr.address +
                 '&amp;subnet=' + current_subnet + '"onclick="return showAddAnotherPopup(this);">' +
                 addr.address + '</a>';
+        }
+        if (addr.tag === 3) {
+            var uuid = ip_uuid[addr.address];
+            //note 1234 was passed as a dummy to be later on replaced in the script
+            return '<a class = "reserve" href=\"' + address_change_url.replace('1234', uuid) +
+                '?_to_field=id&amp;_popup=1&amp;ip_address=' + addr.address +
+                '&amp;subnet=' + current_subnet + '"onclick="return showAddAnotherPopup(this);">' +
+                addr.address + '</a>';
+
+        }
+        if (addr.tag === 4) {
+            var uuid = ip_uuid[addr.address];
+            //note 1234 was passed as a dummy to be later on replaced in the script
+            return '<a class = "not_allocated_but_used" href=\"' + address_change_url.replace('1234', uuid) +
+                '?_to_field=id&amp;_popup=1&amp;ip_address=' + addr.address +
+                '&amp;subnet=' + current_subnet + '"onclick="return showAddAnotherPopup(this);">' +
+                addr.address + '</a>';
+        }
+        if (addr.tag === 6) {
+            var uuid = ip_uuid[addr.address];
+            //note 1234 was passed as a dummy to be later on replaced in the script
+            return '<a class = "has_allocated_not_used" href=\"' + address_change_url.replace('1234', uuid) +
+                '?_to_field=id&amp;_popup=1&amp;ip_address=' + addr.address +
+                '&amp;subnet=' + current_subnet + '"onclick="return showAddAnotherPopup(this);">' +
+                addr.address + '</a>';
+        }
+        if (addr.tag === 7) {
+            var uuid = ip_uuid[addr.address];
+            //note 1234 was passed as a dummy to be later on replaced in the script
+            // return '<a class = "self_not_used" href=\"' + address_change_url.replace('1234', uuid) +
+            //     '?_to_field=id&amp;_popup=1&amp;ip_address=' + addr.address +
+            //     '&amp;subnet=' + current_subnet + '"onclick="return showAddAnotherPopup(this);">' +
+            //     addr.address + '</a>';
+             return '<a class = "self_not_used"  href=\"' + address_add_url + '?_to_field=id&amp;_popup=1&amp;ip_address=' +
+            addr.address + '&amp;subnet=' + current_subnet + '"onclick="return showAddAnotherPopup(this);" ' +
+            'id="addr_' + id + '">' +
+            addr.address + '</a>';
         }
         return '<a href=\"' + address_add_url + '?_to_field=id&amp;_popup=1&amp;ip_address=' +
             addr.address + '&amp;subnet=' + current_subnet + '"onclick="return showAddAnotherPopup(this);" ' +
             'id="addr_' + id + '">' +
             addr.address + '</a>';
     }
+
     function pageContainer(page) {
         var div = $('<div class="page"></div>');
         page.forEach(function (address) {
@@ -67,6 +122,7 @@ function initHostsInfiniteScroll($, current_subnet, address_add_url, address_cha
         });
         return div;
     }
+
     function validateIp(ip_address, callback) {
         if (ip_address === '') {
             callback(true);
@@ -84,6 +140,7 @@ function initHostsInfiniteScroll($, current_subnet, address_add_url, address_cha
             },
         });
     }
+
     function goTo() {
         var input = $("#goto-input").val().toLowerCase().trim();
         validateIp(input, function (isValid) {
@@ -103,6 +160,7 @@ function initHostsInfiniteScroll($, current_subnet, address_add_url, address_cha
             }
         });
     }
+
     function appendPage() {
         $('#subnet-visual').append(pageContainer(fetchedPages[lastRenderedPage]));
         if (lastRenderedPage >= renderedPages) {
@@ -114,6 +172,7 @@ function initHostsInfiniteScroll($, current_subnet, address_add_url, address_cha
         busy = false;
         onUpdate();
     }
+
     function fetchNextPage() {
         $.ajax({
             type: 'GET',
@@ -129,6 +188,7 @@ function initHostsInfiniteScroll($, current_subnet, address_add_url, address_cha
             },
         });
     }
+
     function pageDown() {
         busy = true;
         if (fetchedPages.length > lastRenderedPage) {
@@ -139,6 +199,7 @@ function initHostsInfiniteScroll($, current_subnet, address_add_url, address_cha
             busy = false;
         }
     }
+
     function pageUp() {
         busy = true;
         if (lastRenderedPage > renderedPages) {
@@ -150,6 +211,7 @@ function initHostsInfiniteScroll($, current_subnet, address_add_url, address_cha
         }
         busy = false;
     }
+
     function onUpdate() {
         if (!busy) {
             var scrollTop = $('#subnet-visual').scrollTop(),
@@ -162,6 +224,7 @@ function initHostsInfiniteScroll($, current_subnet, address_add_url, address_cha
             }
         }
     }
+
     $("#goto-button").on("click", function () {
         goTo();
     });

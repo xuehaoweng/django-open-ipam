@@ -48,7 +48,10 @@
         <script type="text/javascript">
             var current_subnet = '{{ original.pk }}';
             var ipAddUrl = '{% url ipaddress_add_url %}'
+
             var ipChangeUrl = '{% url ipaddress_change_url "1234" %}'
+            {#console.log(ipAddUrl, ipChangeUrl)#}
+            {#console.log({{ ip_uuid }})#}
             django.jQuery(document).ready(function () {
                 initHostsInfiniteScroll(django.jQuery, current_subnet, ipAddUrl, ipChangeUrl, {{ ip_uuid| safe}})
             });
@@ -67,8 +70,11 @@
                     {% endfor %}
                 {% endfor %}
             );
+            {#console.log(subnet_tree)#}
             subnet_tree[0]['master_subnet'] = "jstree";
+            empty_list = []
             for (item in subnet_tree) {
+                {#console.log(item)#}
                 var parent_element = document.getElementById(subnet_tree[item]["master_subnet"]),
                     subnet_list = document.createElement("ul"),
                     subnet_item = document.createElement("li"),
@@ -86,6 +92,8 @@
                 layout = {},
                 vals = {{ values| safe }}
                     vals[1] = Number(vals[1]);
+            {#console.log()#}
+            {#console.log(vals)#}
             data = [
                 {
 
@@ -95,12 +103,17 @@
                     type: 'pie',
                     hoverinfo: 'label+text',
                     textinfo: 'percent',
-                    labels: ["空闲", "保留", "已分配未使用", "未分配已使用", "已分配已使用"],
+                    {#labels: ["空闲", "保留", "已分配未使用", "未分配已使用", "已分配已使用"],#}
+                    labels: ['空闲', '已分配已使用', '保留', '未分配已使用', '已分配未使用', '自定义空闲'],
                     automargin: true,                  //自动调整（增加）边距大小
                     marker: {
                         colors: [
-                            'rgba(149, 10, 10, 1)',
-                            'rgba(20, 102, 26, 1)'
+                            'rgb(115, 192, 222)',
+                            'rgb(84, 112, 198)',
+                            'rgb(145, 204, 117)',
+                            'rgb(250, 200, 88)',
+                            'rgb(238, 102, 102)',
+                            'rgb(59, 162, 110)',
                             {#'rgba(3, 56, 90, 1)'#}
                         ]
                     },

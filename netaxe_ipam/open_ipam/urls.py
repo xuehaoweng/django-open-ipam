@@ -1,4 +1,5 @@
 from django.urls import path, include
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.routers import DefaultRouter
 
 from open_ipam.views import SubnetHostsView, AvailableIpView, SubnetApiViewSet, IpAddressApiViewSet, SubnetAddressView, \
@@ -15,7 +16,7 @@ urlpatterns = [
     # path(r'api/', include(router.urls)),
     path('jobCenter/', JobCenterView.as_view(), name='jobCenter'),
     path('subnet_tree/', IpAmSubnetTreeView.as_view(), name='subnet_tree'),
-    path('address_handel/', IpAmHandelView.as_view(), name='address_handel'),
+    path('address_handel/', csrf_exempt(IpAmHandelView.as_view()), name='address_handel'),
 
     path('subnet/<str:subnet_id>/ip_address/', SubnetAddressView.as_view(), name='subnet_ip_address'),
 
