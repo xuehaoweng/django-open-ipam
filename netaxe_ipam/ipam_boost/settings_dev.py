@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-xyok!l9tqv+*t8ar)lcut_(lbvnyu#y-3(@%+)4$hl=j$6#yb-
 DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
-
+CSRF_TRUSTED_ORIGINS = ["*"]
 # 用户自定义配置
 if os.path.exists("{}/{}/{}".format(BASE_DIR, "ipam_boost", "conf.py")):
     from .conf import *
