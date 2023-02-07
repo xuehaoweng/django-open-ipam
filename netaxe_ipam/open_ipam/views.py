@@ -338,7 +338,7 @@ class IpAmHandelView(APIView):
             return JsonResponse(res, safe=True)
         if range_update:
             range_data = json.loads(range_update)
-            print(range_data)
+            # print(range_data)
             start_ip = range_data['start_ip']
             end_ip = range_data['end_ip']
             description = range_data['description']
@@ -362,6 +362,33 @@ class IpAmHandelView(APIView):
             res = {'message': '地址回收成功', 'code': 200, 'delete_ip_list': [j['ipaddr'] for j in delete_ip_list]}
             return JsonResponse(res, safe=True)
 
+        if description:
+            Subnet.objects.update(description=description)
+            res = {'message': '网段描述更新成功', 'code': 200, }
+            return JsonResponse(res, safe=True)
+
+        if add_subnet:
+            try:
+                # print(add_master_id, type(add_master_id))
+                master_subnet_id = Subnet.objects.filter(id=int(add_master_id)).first()
+                add_kwargs = {
+                    "name": add_subnet,
+                    "mask": add_subnet.split("/")[1],
+                    "subnet": add_subnet,
+                    "description": add_description,
+                    "master_subnet": master_subnet_id
+                }
+                if add_master_id == "0":
+                    add_kwargs.pop('master_subnet')
+
+                # print(add_kwargs)
+                Subnet.objects.update_or_create(**add_kwargs)
+                res = {'message': '新增网段成功', 'code': 200, }
+                return JsonResponse(res, safe=True)
+            except Exception as e:
+                res = {'message': e, 'code': 400, }
+                return JsonResponse(res, safe=True)
+
 
 # 作业中心taskList
 class JobCenterView(APIView):
@@ -372,14 +399,15 @@ class JobCenterView(APIView):
         get_queues = request.GET.get('get_queues')
         celery_app = current_app
         if get_current_tasks:
-            res = get_all_tasks.apply_async()
+            res = get_all_tasks()
             # print(res.get())
-            while True:
-                if res.ready():
-                    result = res.get()
-                    break
+            # while True:
+            #     if res.ready():
+            #         result = res.get()
+            #         break
+            result = json.loads(res)
             return JsonResponse(
-                {'code': 200, 'data': json.loads(result)['result'], 'count': len(json.loads(result)['result'])})
+                {'code': 200, 'data': result['result'], 'count': len(result['result'])})
         if get_crontab_schedules:
             from django.core import serializers
             crontab_schedules = serializers.serialize("json", CrontabSchedule.objects.all())

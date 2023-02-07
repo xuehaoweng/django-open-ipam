@@ -36,7 +36,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ipam_boost.settings")
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 INSTALLED_APPS = [
     # 'simplepro',
-    'simpleui',
+    # 'simpleui',
     # 'guardian',
     'django_filters',
     "django_celery_beat",
@@ -69,6 +69,7 @@ MIDDLEWARE = [
     # 加入simplepro的中间件
     # 'simplepro.middlewares.SimpleMiddleware'
 ]
+MIDDLEWARE += ['middlewares.LogMiddleware.PlatformOperationLogs']
 
 ROOT_URLCONF = 'ipam_boost.urls'
 
@@ -252,33 +253,24 @@ SIMPLEUI_CONFIG = {
 
 }
 REST_FRAMEWORK = {
-    "DATE_FORMAT": "%Y-%m-%d",
-    "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",  # 日期时间格式配置
-    "DEFAULT_FILTER_BACKENDS": (
-        "rest_framework.filters.SearchFilter",
-        "rest_framework.filters.OrderingFilter",
-        "django_filters.rest_framework.DjangoFilterBackend",
+    'DEFAULT_PERMISSION_CLASSES': (
+        # 'rest_framework.permissions.DjangoModelPermissions',
+        'rest_framework.permissions.IsAuthenticated',
+        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-        "rest_framework.permissions.DjangoModelPermissions",
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'utils.authentication.ExpiringTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        # "apps.api.authentication.ExpiringTokenAuthentication",
     ),
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
-    "EXCEPTION_HANDLER": "utils.custom_exception.custom_exception_handler",  # 自定义的异常处理
-    # "EXCEPTION_HANDLER": "apps.api.tools.custom_exception.custom_exception_handler", # 自定义的异常处理
-    # 下面控制分页
-    # "DEFAULT_PAGINATION_CLASS": "utils.custom.pagination.CustomPagination",  # 自定义分页
-    # "PAGE_SIZE": 10,
-    # "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.AutoSchema",
-    # "DEFAULT_PAGINATION_CLASS": "apps.api.tools.custom_pagination.LargeResultsSetPagination",
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.AutoSchema',
+
 }
+AUTHENTICATION_BACKENDS = (
+    # "django_auth_ldap.backend.LDAPBackend",
+    "django.contrib.auth.backends.ModelBackend",
+    # "guardian.backends.ObjectPermissionBackend",  # 这是guardian的
+)
 # Restful token 有效时间八小时
 REST_FRAMEWORK_TOKEN_EXPIRE_MINUTES = 60 * 60 * 8

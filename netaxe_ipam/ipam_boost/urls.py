@@ -20,7 +20,7 @@ from rest_framework.documentation import include_docs_urls
 from django.views.static import serve
 from ipam_boost.views import obtain_expiring_auth_token, page_not_found
 from ipam_boost import settings
-from open_ipam.tolls.login import LoginView
+from open_ipam.tools.login import LoginView
 
 urlpatterns = [
     # coreapi接口文档

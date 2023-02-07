@@ -1,6 +1,7 @@
 import csv
 import json
 import sys
+import time
 from io import StringIO
 
 from ipaddress import ip_address
@@ -13,17 +14,21 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
+from users.models import OpLogs
+
 
 class CsvImportException(Exception):
     pass
 
 
 class Subnet(models.Model):
-    name = models.CharField(max_length=100, db_index=True, verbose_name='名称',unique=True)
-    subnet = IPNetworkField(db_index=True, verbose_name='子网段', unique=True)
+    subnet_id = models.IntegerField(default=0, verbose_name='网段ID')
+    name = models.CharField(max_length=100, db_index=True, verbose_name='名称')
+    subnet = IPNetworkField(db_index=True, verbose_name='子网段')
     mask = models.IntegerField(default=24, verbose_name='掩码')
     freehosts_percent = models.FloatField(verbose_name='空闲率', blank=True, null=True, default=0)
-    description = models.CharField(max_length=300, blank=True, verbose_name='描述')
+    description = models.CharField(max_length=300, blank=True, verbose_name='描述', null=True)
+
     master_subnet = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
@@ -35,8 +40,12 @@ class Subnet(models.Model):
 
     class Meta:
         # abstract = True
+        ordering = ['subnet']
         db_table = 'ipam_subnet'  # 通过db_table自定义数据表名
-        indexes = [models.Index(fields=['subnet'], name='subnet_idx')]
+        indexes = [
+            models.Index(fields=['subnet'], name='subnet_idx'),
+            models.Index(fields=['name'], name='name'),
+        ]
         verbose_name = _('子网网段表')
         verbose_name_plural = _('子网网段表')
 
@@ -62,7 +71,7 @@ class Subnet(models.Model):
             raise ValidationError(
                 {
                     'subnet': _(
-                        'This subnet is already assigned to another organization.'
+                        'This subnet is already exists'
                     )
                 }
             )
@@ -172,13 +181,34 @@ class Subnet(models.Model):
                 return str(host)
         return None
 
+    # def update(self, **kwargs):
+    #     print('=====================', kwargs)
+    #     return super(Subnet, self).update(**kwargs)
+
+    # def create(self, *args, **kwargs):
+    #     print('==========create', kwargs)
+    #     return super().create(*args, **kwargs)
+
+    # def save(self, *args, **kwargs):
+    #     # print('==========save', *args, **kwargs)
+    #     # re_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+    #     # oprate_data = {
+    #     #     're_time': re_time,  # 请求时间
+    #     #     'access_time': 10,  # 请求时间
+    #     #     're_url': "ipam/subnet",  # 请求url
+    #     #     're_method': 'POST',  # 请求方法
+    #     #     're_content': "测试测试测试",  # 请求参数
+    #     # }
+    #     # OpLogs.objects.create(**oprate_data)
+    #     return super().save(*args, **kwargs)
+
 
 class IpAddress(models.Model):
     tag_choices = ((1, '空闲'), (2, '已分配已使用'), (3, '保留'), (4, '未分配已使用'), (6, '已分配未使用'), (7, '自定义空闲'))
     subnet = models.ForeignKey(Subnet, on_delete=models.CASCADE, verbose_name='归属子网段')
 
-    ip_address = models.GenericIPAddressField(verbose_name='IP地址')
-    description = models.CharField(max_length=500, blank=True, verbose_name='描述信息')
+    ip_address = models.GenericIPAddressField(verbose_name='IP地址', unique=True)
+    description = models.CharField(max_length=500, blank=True, verbose_name='描述信息', null=True)
     tag = models.PositiveSmallIntegerField(verbose_name='状态标签', choices=tag_choices, default=1)
     bgbu = models.ManyToManyField("BgBu", blank=True)
     editDate = models.DateField(blank=True, auto_now=True, null=True, verbose_name='编辑时间')
@@ -188,6 +218,12 @@ class IpAddress(models.Model):
 
     class Meta:
         # abstract = True
+        ordering = ['ip_address']
+        indexes = [models.Index(fields=['ip_address', ]),
+                   models.Index(fields=['description', ]),
+                   models.Index(fields=['lastOnlineTime', ]),
+
+                   ]
         db_table = 'ipam_ip_address'  # 通过db_table自定义数据表名
         verbose_name = _('网络地址表')
         verbose_name_plural = _('网络地址表')

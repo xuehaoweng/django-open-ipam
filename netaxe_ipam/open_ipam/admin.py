@@ -7,6 +7,7 @@ from django import forms
 from django.contrib import admin, messages
 
 # Register your models here.
+from django.contrib.admin.models import LogEntry
 from django.db.models import TextField
 from django.db.models.functions import Cast
 from django.http import HttpResponse
@@ -18,18 +19,18 @@ from import_export.admin import ImportExportModelAdmin
 from django.utils.translation import gettext_lazy as _
 
 # from reversion.admin import VersionAdmin
-from open_ipam.tolls.forms import IpAddressImportForm
+from open_ipam.tools.forms import IpAddressImportForm
 from open_ipam.views import HostsSet
 
 
 @admin.register(Subnet)
 class AdminSubnetModel(ImportExportModelAdmin):
     """自定义网段显示字段"""
-    list_display = ['subnet', 'mask', 'description', 'master_subnet']
-    list_filter = ['subnet', 'mask', 'description', 'master_subnet']
+    list_display = ['subnet', 'subnet_id', 'mask', 'description', 'master_subnet']
+    list_filter = ['subnet', 'subnet_id', 'mask', 'description', 'master_subnet']
     # Related Field got invalid lookup: icontains
     # 这个错误一般是由于你在admin.py文件里的search_fields使用了外键，而没有指定具体的字段。
-    search_fields = ['subnet', 'mask', 'description', 'master_subnet__id']
+    search_fields = ['subnet', 'subnet_id', 'mask', 'description', 'master_subnet__id']
     autocomplete_fields = ['master_subnet']
     # list_select_related = ['master_subnet']
     change_form_template = 'admin/openwisp-ipam/subnet/change_form.html'
@@ -72,10 +73,11 @@ class AdminSubnetModel(ImportExportModelAdmin):
             collection_depth += 1
         subnet_ip_address_usage_list = list(instance.ipaddress_set.values())
         # free = len([i for i in subnet_ip_address_usage_list if i['tag'] == 0])
-        has_allocated_and_used = len([i for i in subnet_ip_address_usage_list if i['tag'] == 1])
-        reserve = len([i for i in subnet_ip_address_usage_list if i['tag'] == 2])
-        not_allocated_but_used = len([i for i in subnet_ip_address_usage_list if i['tag'] == 3])
-        has_allocated_not_used = len([i for i in subnet_ip_address_usage_list if i['tag'] == 4])
+        has_allocated_and_used = len([i for i in subnet_ip_address_usage_list if i['tag'] == 2])
+        reserve = len([i for i in subnet_ip_address_usage_list if i['tag'] == 3])
+        not_allocated_but_used = len([i for i in subnet_ip_address_usage_list if i['tag'] == 4])
+        has_allocated_not_used = len([i for i in subnet_ip_address_usage_list if i['tag'] == 6])
+        self_not_used = len([i for i in subnet_ip_address_usage_list if i['tag'] == 7])
         # print(instance.ipaddress_set.values())
         # HasAllocatedAndUsed = instance.ipaddress_set.count()
 
@@ -90,12 +92,19 @@ class AdminSubnetModel(ImportExportModelAdmin):
         ip_id_list = OrderedDict(ip_id_list)
         ip_uuid = {}
         for ip_addr, Ip in ip_id_list.items():
-            ip_uuid[ip_addr] = f'{Ip[0:8]}-{Ip[8:12]}-{Ip[12:16]}-{Ip[16:20]}-{Ip[20:]}'
+            # ip_uuid[ip_addr] = f'{Ip[0:8]}-{Ip[8:12]}-{Ip[12:16]}-{Ip[16:20]}-{Ip[20:]}'
+            # TODO 修复ip_uuid 自带‘----’ bug
+            ip_uuid[ip_addr] = f'{Ip[0:8]}{Ip[8:12]}{Ip[12:16]}{Ip[16:20]}{Ip[20:]}'
         free = HostsSet(
             instance).count() - has_allocated_and_used - not_allocated_but_used - has_allocated_not_used - reserve
 
-        labels = ['已分配已使用', '空闲', '未分配已使用', '已分配未使用', '保留']
-        values = [has_allocated_and_used, free, not_allocated_but_used, has_allocated_not_used, reserve]
+        labels = ['空闲', '已分配已使用', '保留', '未分配已使用', '已分配未使用', '自定义空闲']
+        # print('已分配已使用', has_allocated_and_used)
+        # print('空闲', free)
+        # print('未分配已使用', not_allocated_but_used)
+        # print('已分配未使用', has_allocated_not_used)
+        # print('保留', reserve)
+        values = [free, has_allocated_and_used, reserve, not_allocated_but_used, has_allocated_not_used, self_not_used]
         extra_context = {
             'labels': labels,
             'values': values,
@@ -109,6 +118,7 @@ class AdminSubnetModel(ImportExportModelAdmin):
         return super().change_view(request, object_id, form_url, extra_context)
 
     # save_on_top = True
+
     def _check_perm(self, view, perm):
         admin_site = self.admin_site
 
@@ -204,9 +214,9 @@ class IpAddressAdminForm(forms.ModelForm):
 @admin.register(IpAddress)
 class AdminIpAddressModel(ImportExportModelAdmin):
     """自定义IP地址显示字段"""
-    list_display = ['ip_address', 'subnet', 'description', 'tag', 'get_bgbu','lastOnlineTime' ]
-    # list_filter = ['subnet', 'ip_address', 'description', 'tag', 'lastOnlineTime', 'editDate',]
-    search_fields = ['ip_address', 'subnet__name', 'description', 'tag', 'lastOnlineTime' ]
+    list_display = ['ip_address', 'subnet', 'description', 'tag', 'get_bgbu', 'lastOnlineTime']
+    # list_filter = ['ip_address', 'subnet', 'description', 'tag', 'lastOnlineTime']
+    search_fields = ['ip_address', 'subnet__name', 'description', 'tag', 'lastOnlineTime']
     autocomplete_fields = ['subnet']
     multitenant_parent = 'subnet'
     form = IpAddressAdminForm
@@ -214,13 +224,15 @@ class AdminIpAddressModel(ImportExportModelAdmin):
     change_list_template = 'admin/openwisp-ipam/ip_address/change_list.html'
     app_label = 'open_ipam'
 
+    # save_on_top = True
+
     class Media:
         js = (
             'admin/js/jquery.init.js',
             'openwisp-ipam/js/ip-request.js',
         )
 
-    def get_bgbu(self,instance):
+    def get_bgbu(self, instance):
         return [bgbu.name for bgbu in instance.bgbu.all()]
 
     def get_urls(self):
@@ -260,6 +272,8 @@ class AdminIpAddressModel(ImportExportModelAdmin):
         return super().add_view(request, form_url, self.get_extra_context())
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
+        # self.fields = ('ip_address', 'subnet__name', 'description', 'tag',)
+        # self.readonly_fields = ('lastOnlineTime')
         return super().change_view(
             request, object_id, form_url, self.get_extra_context()
         )
@@ -347,6 +361,14 @@ class AdminTagsModel(admin.ModelAdmin):
     search_fields = ['bg_color', 'compress', 'fg_color', 'locked', 'type', 'show_tag']
 
 
-admin.site.site_header = 'IP地址管理系统'
-admin.site.site_title = 'IP地址管理系统'
-admin.site.index_title = 'IP地址管理系统'
+# 添加 admin后台操作日志
+# class LogEntryAdmin(admin.ModelAdmin):
+#     list_display = ['object_repr', 'object_id', 'action_flag', 'user', 'change_message', 'object_repr']
+#     list_filter = ('user', 'action_flag')
+#     search_fields = ['action_flag', 'user', 'change_message']
+#
+#
+# admin.site.register(LogEntry, LogEntryAdmin)
+admin.site.site_header = 'IPAM管理系统'
+admin.site.site_title = 'IPAM管理系统'
+admin.site.index_title = 'IPAM管理后台'
