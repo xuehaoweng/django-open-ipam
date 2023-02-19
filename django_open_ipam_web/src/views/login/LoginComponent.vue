@@ -7,7 +7,7 @@
           <div class="logo-wrapper">
             <img src="../../assets/logo.png" />
           </div>
-          <div class="title">django_open 网络ipam平台</div>
+          <div class="title">django_open_ipam平台</div>
           <div class="sub-title">Vue3 + Vite2 + Typescript + Naive UI</div>
           <div class="flex-1 flex justify-center items-center ttppii"> 生活，应该还有诗和远方 </div>
           <div class="bottom-wrapper">NetOps {{ version }}</div>
@@ -70,7 +70,7 @@
     <div v-else class="m-login-container">
       <div class="header">
         <div class="the-p"> P </div>
-        <div class="mt-4 text-lg font-bold text-white"> django_open 网络ipam平台 </div>
+        <div class="mt-4 text-lg font-bold text-white"> django_open_ipam平台 </div>
       </div>
       <div class="content">
         <n-input round placeholder="请输入用户名" size="large" v-model:value="username">

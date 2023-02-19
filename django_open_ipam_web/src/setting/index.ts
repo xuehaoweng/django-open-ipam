@@ -16,7 +16,7 @@ interface Setting {
     }
 }
 
-export const projectName = 'django_open 网络ipam平台'
+export const projectName = 'django_open_ipam平台'
 
 export default Object.assign(
     {
