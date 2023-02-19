@@ -1,57 +1,57 @@
 version: "3.2"
 networks:
-  netaxe-ipam-network:
+  django_open-ipam-network:
     driver: bridge
     ipam:
       config:
         - subnet: 192.169.205.0/24
 
 services:
-  netaxeipam_server:
+  django_openipam_server:
     image: registry.cn-shanghai.aliyuncs.com/net-axe/axe-ipam:1.0.2
-    container_name: netaxeipam_server
+    container_name: django_openipam_server
     ports:
       - "38001:38001"
     command: sh start.sh web
     volumes:
-      - ../netaxe_ipam:/home/netaxeipam/
-      - ./netaxeipam/logs/netaxeipam_log:/home/netaxeipam/logs
+      - ../django_open_ipam:/home/django_openipam/
+      - ./django_openipam/logs/django_openipam_log:/home/django_openipam/logs
     networks:
-      - netaxe-ipam-network
+      - django_open-ipam-network
 
-  netaxeipam_nginx:
-    image: registry.cn-hangzhou.aliyuncs.com/netaxe/nginx:1.7.9
-    container_name: netaxeipam_nginx
+  django_openipam_nginx:
+    image: registry.cn-hangzhou.aliyuncs.com/django_open/nginx:1.7.9
+    container_name: django_openipam_nginx
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
-      - ../netaxe_ipam:/home/netaxeipam/
+      - ../django_open_ipam:/home/django_openipam/
     ports:
       - "39999:39999"
     depends_on:
-      - netaxeipam_server
+      - django_openipam_server
     networks:
-      - netaxe-ipam-network
+      - django_open-ipam-network
 
-  celery_netaxe_ipam:
+  celery_django_open_ipam:
     image: registry.cn-shanghai.aliyuncs.com/net-axe/axe-ipam:1.0.2
-    container_name: celery_netaxe_ipam
-    command: sh start.sh netaxe_ipam
+    container_name: celery_django_open_ipam
+    command: sh start.sh django_open_ipam
     depends_on:
-      - netaxeipam_server
+      - django_openipam_server
     volumes:
-      - ../netaxe_ipam:/home/netaxeipam
+      - ../django_open_ipam:/home/django_openipam
     networks:
-      - netaxe-ipam-network
+      - django_open-ipam-network
 
 
   ipam-mysql-server:
-    image: registry.cn-hangzhou.aliyuncs.com/netaxe/mysql:5.7
+    image: registry.cn-hangzhou.aliyuncs.com/django_open/mysql:5.7
     restart: always
     container_name: ipam-mysql-server
     environment:
       TZ: Asia/Shanghai
-      MYSQL_USER: "netaxe"
-      MYSQL_DATABASE: "netaxe_ipam"
+      MYSQL_USER: "django_open"
+      MYSQL_DATABASE: "django_open_ipam"
       MYSQL_ROOT_PASSWORD: "root_devnet@2022"
     volumes:
       - /etc/localtime:/etc/localtime
@@ -61,4 +61,4 @@ services:
     ports:
       - "8306:3306"
     networks:
-      - netaxe-ipam-network
+      - django_open-ipam-network
