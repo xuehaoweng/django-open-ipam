@@ -53,3 +53,5 @@ django_open-ipam 第一版本
  ## 前端适配、功能验证
  1. ipv4、ipv6 地址展示适配
  2. 功能验证:地址分配、地址批量分配、地址回收、ipv6地址动态滚动刷新
+ 
+ ![](https://cdn.staticaly.com/gh/xuehaoweng/netaxe-image@master/image.3uxeaoy3gn60.webp)
