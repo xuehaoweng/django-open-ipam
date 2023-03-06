@@ -9,12 +9,12 @@ from datetime import datetime, timedelta
 import pandas as pd
 from celery import shared_task, current_app
 
-from netboost import settings
-from netboost.celery import AxeTask
+from ipam_boost import settings
+from ipam_boost.celery import IpAmTask
 from .models import IpAddress, Subnet
 from utils.ipam_utils import IpAmForNetwork
 from utils.db.mongo_api import IpamOps
-from netboost.settings import BASE_DIR
+from ipam_boost.settings import BASE_DIR
 from netaddr import IPNetwork, IPSet
 
 
@@ -31,7 +31,7 @@ def write_log(filename, datas):
     print('Write Log Done!')
 
 
-@shared_task(base=AxeTask, once={'graceful': True})
+@shared_task(base=IpAmTask, once={'graceful': True})
 def get_all_tasks():
     celery_app = current_app
     # celery_tasks = [task for task in celery_app.tasks if not task.startswith('celery.')]
@@ -40,12 +40,12 @@ def get_all_tasks():
     return json.dumps({'result': res})
 
 
-@shared_task(base=AxeTask, once={'graceful': True})
+@shared_task(base=IpAmTask, once={'graceful': True})
 def ipam_scan():
     pass
 
 
-@shared_task(base=AxeTask, once={'graceful': True})
+@shared_task(base=IpAmTask, once={'graceful': True})
 def ip_am_update_sub_task(ip):
     # 获取地址表实例
     ip_address_model = IpAddress
@@ -172,7 +172,7 @@ def ip_am_update_sub_task(ip):
 
 
 # IPAM地址全网更新main
-@shared_task(base=AxeTask, once={'graceful': True})
+@shared_task(base=IpAmTask, once={'graceful': True})
 def ip_am_update_main():
     start_time = time.time()
     print("IPAM地址信息更新开始")
@@ -230,7 +230,7 @@ def ip_am_update_main():
 # 讯飞云地址不回收？
 
 
-@shared_task(base=AxeTask, once={'graceful': True})
+@shared_task(base=IpAmTask, once={'graceful': True})
 def recycle_ip_main():
     today_date = datetime.now().strftime("%Y-%m-%d")
     start_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())

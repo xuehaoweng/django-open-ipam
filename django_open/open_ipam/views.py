@@ -1,6 +1,7 @@
 import json
 from collections import OrderedDict
-
+import ipaddr
+import netaddr
 from celery import current_app
 from django.db.models import Sum
 from django.http import JsonResponse, HttpResponse
@@ -20,13 +21,13 @@ from rest_framework.response import Response
 from rest_framework.utils.urls import replace_query_param, remove_query_param
 from rest_framework.views import APIView
 
-from ipam_boost.celery import app
+from netboost.celery import app
 from .tasks import get_all_tasks
-from open_ipam.models import Subnet, IpAddress
-from open_ipam.serializers import HostsResponseSerializer, SubnetSerializer, IpAddressSerializer, \
-    PeriodicTaskSerializer, IntervalScheduleSerializer
-from utils.custom_pagination import LargeResultsSetPagination
-from utils.custom_viewset_base import CustomViewBase
+from .models import Subnet, IpAddress, TagsModel
+from .serializers import HostsResponseSerializer, SubnetSerializer, IpAddressSerializer, \
+    PeriodicTaskSerializer, IntervalScheduleSerializer, TagsModelSerializer
+from utils.custom.pagination import LargeResultsSetPagination
+from utils.custom.viewset import CustomViewBase
 from utils.ipam_utils import IpAmForNetwork
 
 
@@ -309,11 +310,11 @@ class IpAmSubnetTreeView(APIView):
             tree = ip_am_network.generate_netops_tree(res_list)
             res = {'data': tree, 'code': 200, }
             return JsonResponse(res, safe=True)
-        # if "tags" in get_params:
-        #     tag_choices = TagsModel.objects.all()
-        #     tags = TagsModelSerializer(tag_choices, many=True)
-        #     res = {'data': tags.data, 'code': 200, 'count': len(tags.data)}
-        #     return JsonResponse(res, safe=True)
+        if "tags" in get_params:
+            tag_choices = TagsModel.objects.all()
+            tags = TagsModelSerializer(tag_choices, many=True)
+            res = {'data': tags.data, 'code': 200, 'count': len(tags.data)}
+            return JsonResponse(res, safe=True)
 
 
 # 地址操作
@@ -363,7 +364,7 @@ class IpAmHandelView(APIView):
             return JsonResponse(res, safe=True)
 
         if description:
-            Subnet.objects.update(description=description)
+            Subnet.objects.filter(id=subnet_id).update(description=description)
             res = {'message': '网段描述更新成功', 'code': 200, }
             return JsonResponse(res, safe=True)
 
@@ -378,13 +379,40 @@ class IpAmHandelView(APIView):
                     "description": add_description,
                     "master_subnet": master_subnet_id
                 }
+                subnet_list = [str(i.subnet) for i in Subnet.objects.all()]
                 if add_master_id == "0":
                     add_kwargs.pop('master_subnet')
+                    if add_subnet in subnet_list:
+                        res = {'message': '新增网段失败,当前新增网段已经存在', 'code': 400, }
+                    else:
+                        Subnet.objects.update_or_create(**add_kwargs)
+                        res = {'message': '新增网段成功', 'code': 200, }
+                    return JsonResponse(res, safe=True)
+                else:
+                    master_subnet = Subnet.objects.get(id=add_master_id)
+                    if str(master_subnet.subnet) == str(add_subnet):
+                        res = {'message': '新增网段失败,请校验参数,不能新建跟父节点相同的子网段', 'code': 400, }
+                        return JsonResponse(res, safe=True)
+                    else:
 
+                        master_subnet_detail = ipaddr.IPv4Network(str(master_subnet.subnet))
+                        add_subnet_detail = ipaddr.IPv4Network(str(str(add_subnet)))
+                        if add_subnet_detail in master_subnet_detail:
+                            if add_subnet in subnet_list:
+                                res = {'message': '新增网段失败,当前新增网段已经存在', 'code': 400, }
+                            else:
+                                Subnet.objects.update_or_create(**add_kwargs)
+                                res = {'message': '新增网段成功', 'code': 200, }
+                        else:
+                            res = {'message': '新增网段失败,请校验网段归属', 'code': 400, }
+                        return JsonResponse(res, safe=True)
                 # print(add_kwargs)
-                Subnet.objects.update_or_create(**add_kwargs)
-                res = {'message': '新增网段成功', 'code': 200, }
-                return JsonResponse(res, safe=True)
+                # 校验是否有归属关系
+
+                # print(str(master_subnet.subnet))
+                # print(str(add_subnet))
+                # print(str(add_subnet) == str(add_subnet))
+                # 判断是否和父节点一致
             except Exception as e:
                 res = {'message': e, 'code': 400, }
                 return JsonResponse(res, safe=True)
