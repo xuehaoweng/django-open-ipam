@@ -268,33 +268,3 @@ class IpAddress(models.Model):
             instance.save()
 
 
-# class BgBu(models.Model):
-#     """ """
-#     name = models.CharField(verbose_name='业务线名称', max_length=20, null=False, unique=True)
-#
-#     # def user_list(self):
-#     #     return ','.join([i.username for i in self.authusers_set.all()])
-#
-#     def __str__(self):
-#         return self.name
-#
-#     class Meta:
-#         verbose_name = '业务线表'
-#         verbose_name_plural = '业务线表'
-#         db_table = 'ipam_bgbu'  # 通过db_table自定义数据表名
-#         indexes = [models.Index(fields=['name', ]), ]
-
-
-class TagsModel(models.Model):
-    bg_color = models.CharField(max_length=100, blank=True, verbose_name='bg_color')
-    compress = models.CharField(max_length=100, blank=True, verbose_name='compress')
-    fg_color = models.CharField(max_length=100, blank=True, verbose_name='fgcolor')
-    locked = models.CharField(max_length=100, blank=True, verbose_name='locked')
-    type = models.CharField(max_length=100, blank=True, verbose_name='type')
-    show_tag = models.BooleanField(verbose_name='showtag')
-
-    class Meta:
-        # abstract = True
-        db_table = 'ipam_tags'  # 通过db_table自定义数据表名
-        verbose_name = _('网络地址标签表')
-        verbose_name_plural = _('网络地址标签表')

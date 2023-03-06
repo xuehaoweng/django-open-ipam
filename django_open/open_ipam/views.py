@@ -22,9 +22,9 @@ from rest_framework.views import APIView
 
 from ipam_boost.celery import app
 from .tasks import get_all_tasks
-from open_ipam.models import Subnet, IpAddress, TagsModel
+from open_ipam.models import Subnet, IpAddress
 from open_ipam.serializers import HostsResponseSerializer, SubnetSerializer, IpAddressSerializer, \
-    PeriodicTaskSerializer, IntervalScheduleSerializer, TagsModelSerializer
+    PeriodicTaskSerializer, IntervalScheduleSerializer
 from utils.custom_pagination import LargeResultsSetPagination
 from utils.custom_viewset_base import CustomViewBase
 from utils.ipam_utils import IpAmForNetwork
@@ -309,11 +309,11 @@ class IpAmSubnetTreeView(APIView):
             tree = ip_am_network.generate_netops_tree(res_list)
             res = {'data': tree, 'code': 200, }
             return JsonResponse(res, safe=True)
-        if "tags" in get_params:
-            tag_choices = TagsModel.objects.all()
-            tags = TagsModelSerializer(tag_choices, many=True)
-            res = {'data': tags.data, 'code': 200, 'count': len(tags.data)}
-            return JsonResponse(res, safe=True)
+        # if "tags" in get_params:
+        #     tag_choices = TagsModel.objects.all()
+        #     tags = TagsModelSerializer(tag_choices, many=True)
+        #     res = {'data': tags.data, 'code': 200, 'count': len(tags.data)}
+        #     return JsonResponse(res, safe=True)
 
 
 # 地址操作

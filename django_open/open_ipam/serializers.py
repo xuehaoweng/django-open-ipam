@@ -4,7 +4,7 @@ from openwisp_utils.api.serializers import ValidatedModelSerializer
 from rest_framework import serializers
 from swapper import load_model
 
-from open_ipam.models import IpAddress, Subnet, TagsModel
+from open_ipam.models import IpAddress, Subnet
 
 
 class IpRequestSerializer(ValidatedModelSerializer):
@@ -14,11 +14,6 @@ class IpRequestSerializer(ValidatedModelSerializer):
         # read_only_fields = ('created', 'modified')
 
 
-class TagsModelSerializer(ValidatedModelSerializer):
-    class Meta:
-        model = TagsModel
-        fields = '__all__'
-        # read_only_fields = ('created', 'modified')
 
 
 class IpAddressSerializer(ValidatedModelSerializer):

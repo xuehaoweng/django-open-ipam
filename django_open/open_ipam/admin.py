@@ -14,7 +14,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import re_path, path, reverse
 
-from open_ipam.models import Subnet, IpAddress, CsvImportException, TagsModel
+from open_ipam.models import Subnet, IpAddress, CsvImportException
 from import_export.admin import ImportExportModelAdmin
 from django.utils.translation import gettext_lazy as _
 
@@ -214,7 +214,7 @@ class IpAddressAdminForm(forms.ModelForm):
 @admin.register(IpAddress)
 class AdminIpAddressModel(ImportExportModelAdmin):
     """自定义IP地址显示字段"""
-    list_display = ['ip_address', 'subnet', 'description', 'tag',  'lastOnlineTime']
+    list_display = ['ip_address', 'subnet', 'description', 'tag', 'lastOnlineTime']
     # list_filter = ['ip_address', 'subnet', 'description', 'tag', 'lastOnlineTime']
     search_fields = ['ip_address', 'subnet__name', 'description', 'tag', 'lastOnlineTime']
     autocomplete_fields = ['subnet']
@@ -341,34 +341,7 @@ class AdminIpAddressModel(ImportExportModelAdmin):
         return render(request, form_template, context)
 
 
-# admin.site.register(Subnet, AdminSubnetModel)
-# admin.site.register(IpAddress, AdminIpAddressModel)
-#
-# @admin.register(BgBu)
-# class AdminBgBuModel(admin.ModelAdmin):
-#     """自定义BGBU显示字段"""
-#     list_display = ['name']
-#     list_filter = ['name']
-#     search_fields = ['name']
-#     # autocomplete_fields = ['name']
 
-
-@admin.register(TagsModel)
-class AdminTagsModel(admin.ModelAdmin):
-    """自定义BGBU显示字段"""
-    list_display = ['bg_color', 'compress', 'fg_color', 'locked', 'type', 'show_tag']
-    list_filter = ['bg_color', 'compress', 'fg_color', 'locked', 'type', 'show_tag']
-    search_fields = ['bg_color', 'compress', 'fg_color', 'locked', 'type', 'show_tag']
-
-
-# 添加 admin后台操作日志
-# class LogEntryAdmin(admin.ModelAdmin):
-#     list_display = ['object_repr', 'object_id', 'action_flag', 'user', 'change_message', 'object_repr']
-#     list_filter = ('user', 'action_flag')
-#     search_fields = ['action_flag', 'user', 'change_message']
-#
-#
-# admin.site.register(LogEntry, LogEntryAdmin)
 admin.site.site_header = 'IPAM管理系统'
 admin.site.site_title = 'IPAM管理系统'
 admin.site.index_title = 'IPAM管理后台'

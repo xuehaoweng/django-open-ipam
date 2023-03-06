@@ -19,8 +19,10 @@ from django.urls import path, include, re_path
 from rest_framework.documentation import include_docs_urls
 from django.views.static import serve
 from ipam_boost.views import obtain_expiring_auth_token, page_not_found
-from ipam_boost import settings
+# from ipam_boost import settings
+from django.conf import settings  ##新增
 from open_ipam.tools.login import LoginView
+# from django.conf.urls import url  ##新增
 
 urlpatterns = [
     # coreapi接口文档
@@ -33,6 +35,9 @@ urlpatterns = [
     # 提供api接口
     path(r'ipam/v1/', include('open_ipam.urls'), ),
     re_path(r'^media/(?P<path>.*)', serve, {"document_root": settings.MEDIA_ROOT}),
+    # url(r'^static/(?P<path>.*)$', static.serve,
+    #     {
+    #         'document_root': settings.STATIC_ROOT}, name='static'),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}, name='static'),
 ]
 

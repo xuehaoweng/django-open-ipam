@@ -9,12 +9,12 @@ from datetime import datetime, timedelta
 import pandas as pd
 from celery import shared_task, current_app
 
-from ipam_boost import settings
-from ipam_boost.celery import IpAmTask
-from open_ipam.models import IpAddress, Subnet
+from netboost import settings
+from netboost.celery import AxeTask
+from .models import IpAddress, Subnet
 from utils.ipam_utils import IpAmForNetwork
-from utils.mongo_api import IpamOps
-from ipam_boost.settings_dev import BASE_DIR
+from utils.db.mongo_api import IpamOps
+from netboost.settings import BASE_DIR
 from netaddr import IPNetwork, IPSet
 
 
@@ -31,7 +31,7 @@ def write_log(filename, datas):
     print('Write Log Done!')
 
 
-@shared_task(base=IpAmTask, once={'graceful': True})
+@shared_task(base=AxeTask, once={'graceful': True})
 def get_all_tasks():
     celery_app = current_app
     # celery_tasks = [task for task in celery_app.tasks if not task.startswith('celery.')]
@@ -40,27 +40,27 @@ def get_all_tasks():
     return json.dumps({'result': res})
 
 
-@shared_task(base=IpAmTask, once={'graceful': True})
+@shared_task(base=AxeTask, once={'graceful': True})
 def ipam_scan():
     pass
 
 
-@shared_task(base=IpAmTask, once={'graceful': True})
+@shared_task(base=AxeTask, once={'graceful': True})
 def ip_am_update_sub_task(ip):
     # 获取地址表实例
     ip_address_model = IpAddress
     # 文件名-操作失败的IP地址写入文件中
     file_time = datetime.now().strftime("%Y-%m-%d")
     # 地址操作失败保存文件路径.log
-    ip_am_ip_fail_file = os.path.join(BASE_DIR, 'media', 'ipam', "django_open_ipam_ip_fail-{}.log".format(file_time))
+    ip_am_ip_fail_file = os.path.join(BASE_DIR, 'media', 'ipam', "netaxe_ipam_ip_fail-{}.log".format(file_time))
     # 在网络地址表取地址实例
     ip_address_instance = ip_address_model.objects.filter(ip_address=ip).values().first()
     # 预先定义初始化desc
-    tmp_description = {"Last Online Time": file_time, }
+    tmp_description = {"Last Online Time": file_time}
     # 最近在线时间
     lastOnlineTime = file_time
 
-    # TODO 判断IP地址是否在django_open-IPAM中有记录
+    # TODO 判断IP地址是否在NetAxe-IPAM中有记录
 
     # IP地址暂时不存在IPAM中 则不存在子网网段IP
     if ip_address_instance is None:
@@ -76,12 +76,15 @@ def ip_am_update_sub_task(ip):
                 subnet_insert_id = subnet24_instance.id
             else:
                 # 新建24位网段
-                subnet_instance = Subnet(subnet=str(subnet24) + "/24", mask=24, master_subnet_id=subnet16_id,
-                                         description=f'django_open_ipam {file_time} 新建网段')
+                try:
+                    subnet_instance = Subnet(subnet=str(subnet24) + "/24", mask=24, master_subnet_id=subnet16_id,
+                                             description=f'netaxe_ipam {file_time} 新建网段')
 
-                subnet_instance.save()
-                # ip归属子网ID为 TODO 新建24位网段id
-                subnet_insert_id = subnet_instance.id
+                    subnet_instance.save()
+                    # ip归属子网ID为 TODO 新建24位网段id
+                    subnet_insert_id = subnet_instance.id
+                except Exception as e:
+                    subnet_insert_id = Subnet.objects.filter(subnet=str(subnet24) + "/24").first().id
 
             """
             # 新增IP地址信息置位tag=4  未分配已使用
@@ -96,6 +99,17 @@ def ip_am_update_sub_task(ip):
         # 若不存在16位网段
         else:
             # 不存在16位网段-直接 TODO 丢弃到失败列表
+            # TODO 新建16位网段、方便下一次任务更新地址成功
+            subnet16 = IPNetwork(f'{ip}/16').network
+            try:
+                subnet_16_instance = Subnet(subnet=str(subnet16) + "/16", mask=16,
+                                            description=f'netaxe_ipam {file_time} 新建16位网段')
+                subnet_16_instance.save()
+            except Exception as e:
+                print('已存在16位网段')
+            # time.sleep(2)
+            # Subnet.objects.update_or_create(subnet=str(subnet16) + "/16", mask=16,
+            #                             description=f'netaxe_ipam {file_time} 新建16位网段')
             print('请先创建此IP归属网段：{}'.format(ip))
             IpamOps.post_fail_ip(ip)
             _tmp_data = []
@@ -107,7 +121,7 @@ def ip_am_update_sub_task(ip):
         ip_address_id = ip_address_instance['id']
         ip_address_tag = ip_address_instance['tag']
         ip_address_desc = ip_address_instance['description']
-        bgbu_id_list = []
+        # bgbu_id_list = []
         # if ip_address_desc != "":
         #     ip_address_desc = eval(ip_address_desc)
         #     if 'BgBu' in ip_address_desc.keys() and ip_address_desc['BgBu'] != "[]":
@@ -125,13 +139,14 @@ def ip_am_update_sub_task(ip):
         #                         bgbu_instance.save()
         #                         bgbu_id = bgbu_instance.id
         #                 bgbu_id_list.append(bgbu_id)
-        if ip_address_tag == 6:  # 已分配未使用变更到已分配已使用、最近在线时间、描述信息、BgBu
+        if ip_address_tag == 6:  # 已分配未使用变更到已分配已使用、最近在线时间、BgBu
             # TODO 更新 6>> 2
+            ## 描述信息 不更新 -避免影响前端冲突
             IpamOps.post_update_ip(ip)
             ip_update_6_instance = IpAddress.objects.get(id=ip_address_id)
             ip_update_6_instance.tag = 2
             ip_update_6_instance.lastOnlineTime = lastOnlineTime
-            ip_update_6_instance.description = ip_address_desc if ip_address_desc else tmp_description
+            ip_update_6_instance.description =ip_address_desc if ip_address_desc else tmp_description
             # ip_update_6_instance.bgbu.set(bgbu_id_list)
             ip_update_6_instance.save()
         if ip_address_tag == 7:  # 自定义空闲变更到未分配已使用、最近在线时间、描述信息、BgBu
@@ -143,7 +158,7 @@ def ip_am_update_sub_task(ip):
             ip_update_7_instance.description = tmp_description
             # ip_update_7_instance.bgbu.set(bgbu_id_list)
             ip_update_7_instance.save()
-        else:  # 更新tag、最近在线时间、描述信息、BgBu
+        else:  # 更新tag、最近在线时间、BgBu、其他类型不修改描述信息、避免
             # TODO 更新 未使用-仅更新在线时间、描述信息、BGBU等
             IpamOps.post_update_ip(ip)
             ip_update_else_instance = IpAddress.objects.get(id=ip_address_id)
@@ -157,7 +172,7 @@ def ip_am_update_sub_task(ip):
 
 
 # IPAM地址全网更新main
-@shared_task(base=IpAmTask, once={'graceful': True})
+@shared_task(base=AxeTask, once={'graceful': True})
 def ip_am_update_main():
     start_time = time.time()
     print("IPAM地址信息更新开始")
@@ -169,9 +184,9 @@ def ip_am_update_main():
     ip_am_ip_fail_file = os.path.join(BASE_DIR, 'media', 'ipam', "netops_ipam_ip_fail-{}.log".format(file_time))
     # 删除旧数据库
     if total_ip:
-        IpamOps.delet_coll(coll='django_open_ipam_fail_ip')
-        IpamOps.delet_coll(coll='django_open_ipam_success_ip')
-        IpamOps.delet_coll(coll='django_open_ipam_update_ip')
+        IpamOps.delet_coll(coll='netaxe_ipam_fail_ip')
+        IpamOps.delet_coll(coll='netaxe_ipam_success_ip')
+        IpamOps.delet_coll(coll='netaxe_ipam_update_ip')
     else:
         print("IPAM地址信息更新失败：未获取到total_ip_list")
         return
@@ -179,10 +194,10 @@ def ip_am_update_main():
         if ip_info['ipaddress']:
             # print(ip_info['ipaddress'])
             # 异步函数方式-验证中
-            ip_am_update_tasks.append(
-                ip_am_update_sub_task.apply_async(args=(ip_info['ipaddress'],), queue='django_open_ipam'))
+            # ip_am_update_tasks.append(
+            #     ip_am_update_sub_task.apply_async(args=(ip_info['ipaddress'],), queue='netaxe_ipam'))
 
-            # ip_am_update_sub_task(ip_info['ipaddress'])
+            ip_am_update_sub_task(ip_info['ipaddress'])
     print("子任务下发完毕")
 
     # 等待子任务全部执行结束后执行下一步
@@ -194,9 +209,9 @@ def ip_am_update_main():
     total_time = int((time.time() - start_time) / 60)
     print('花费总时间', total_time)
 
-    ip_fail_counts = IpamOps.get_coll_account(coll='django_open_ipam_fail_ip')  # 失败地址表
-    ip_add_counts = IpamOps.get_coll_account(coll='django_open_ipam_success_ip')  # 新增地址表
-    ip_update_counts = IpamOps.get_coll_account(coll='django_open_ipam_update_ip')  # 更新地址表
+    ip_fail_counts = IpamOps.get_coll_account(coll='netaxe_ipam_fail_ip')  # 失败地址表
+    ip_add_counts = IpamOps.get_coll_account(coll='netaxe_ipam_success_ip')  # 新增地址表
+    ip_update_counts = IpamOps.get_coll_account(coll='netaxe_ipam_update_ip')  # 更新地址表
 
     # # 发送邮件和微信信息
     send_message = 'PAM地址信息更新完成!\n新录入成功: {}个\n新录入失败: {}个\n更新成功: {}个\n总耗时: {}分钟\n'.format(
@@ -213,19 +228,9 @@ def ip_am_update_main():
 
 # 定时回收地址
 # 讯飞云地址不回收？
-'''
-# 子网白名单
- "172.22.143.0/24",  # 音乐服务
- "172.22.144.0/24",  # 音乐服务
- "172.22.145.0/24",  # 音乐服务
- "172.22.98.0/24",  # 音乐服务
- "172.22.104.0/24",  # 音乐服务
- "172.22.149.0/24",  # 阅读
- 172.22.149.0/24",  # 阅读
-'''
 
 
-@shared_task(base=IpAmTask, once={'graceful': True})
+@shared_task(base=AxeTask, once={'graceful': True})
 def recycle_ip_main():
     today_date = datetime.now().strftime("%Y-%m-%d")
     start_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
